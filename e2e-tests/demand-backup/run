@@ -59,12 +59,14 @@ compare_mysql_cmd "select-2" "SELECT * from myApp.myApp;" "-h $cluster-node-0.$c
 compare_mysql_cmd "select-2" "SELECT * from myApp.myApp;" "-h $cluster-node-1.$cluster-nodes -uroot -proot_password"
 compare_mysql_cmd "select-2" "SELECT * from myApp.myApp;" "-h $cluster-node-2.$cluster-nodes -uroot -proot_password"
 
+kubectl get pods
 desc 'recover backup'
 echo y | $src_dir/deploy/backup/restore-backup.sh $backup1 ${cluster%-pxc}
 kubectl logs job/xtrabackup-restore-job-${cluster%-pxc}
 kubectl delete job/xtrabackup-restore-job-${cluster%-pxc}
 wait_for_running "$cluster-proxysql" 1
 wait_for_running "$cluster-node" 3
+kubectl get pods
 
 desc 'check data after backup'
 compare_mysql_cmd "select-1" "SELECT * from myApp.myApp;" "-h $cluster-node-0.$cluster-nodes -uroot -proot_password"
